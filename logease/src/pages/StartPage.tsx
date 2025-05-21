@@ -35,15 +35,19 @@ export function StartPage() {
     if (!trimmedName) return;
     setIsAddingClient(true);
     try {
-      const response = await fetchServer<{ id: number; timestamp: string; name: string }>(
-        "/add_clients",
-        {
-          method: "POST",
-          body: { name: trimmedName },
-        }
-      );
+      const response = await fetchServer<{
+        id: number;
+        timestamp: string;
+        name: string;
+      }>("/add_clients", {
+        method: "POST",
+        body: { name: trimmedName },
+      });
       if (response.status === 201 && response.data) {
-        setClients([...clients, { id: response.data.id, name: response.data.name }]);
+        setClients([
+          ...clients,
+          { id: response.data.id, name: response.data.name },
+        ]);
         setNewClient("");
       } else if (response.status === 409) {
         alert("Client with this name already exists.");
@@ -58,16 +62,18 @@ export function StartPage() {
   const handleRemoveClient = async (index: number) => {
     const client = clients[index];
     if (removingClientId === client.id) return;
-    if (window.confirm('Are you sure you want to remove this client?')) {
+    if (window.confirm("Are you sure you want to remove this client?")) {
       setRemovingClientId(client.id);
       try {
-        const response = await fetchServer(`/delete_client/${client.id}`, { method: 'DELETE' });
+        const response = await fetchServer(`/delete_client/${client.id}/${encodeURIComponent(client.name)}`, {
+          method: "DELETE",
+        });
         if (response.status === 204) {
           setClients(clients.filter((_, i) => i !== index));
         } else if (response.status === 404) {
-          alert('Client not found.');
+          alert("Client not found.");
         } else {
-          alert(response.error || 'Failed to delete client.');
+          alert(response.error || "Failed to delete client.");
         }
       } finally {
         setRemovingClientId(null);
@@ -141,69 +147,67 @@ export function StartPage() {
 
   return (
     <div className="main-container font-serif text-white">
-      <div className="section-start-justify-start flex-row gap-5">
-
+      <div className="section-start-justify-start flex-row gap-3">
+        
         {/* Block 1 */}
-        <div className="justify-start items-start flex-col gap-3">
-          <div className="section-start-justify-start flex-col gap-3">
-            <span>Latest Installation Scope of Work</span>
-            <div className="section-center-justify-start flex-row gap-3">
-              <button
-                className="logease-button"
-                onClick={() =>
-                  handleView("LogEase Installation Scope of Work.docx")
-                }
-              >
-                View
-              </button>
-              <button
-                className="logease-button"
-                onClick={() =>
-                  handleDownload("LogEase Installation Scope of Work.docx")
-                }
-              >
-                Download
-              </button>
-              <button
-                className="logease-button"
-                onClick={() =>
-                  handleReplace("LogEase Installation Scope of Work.docx")
-                }
-              >
-                Replace
-              </button>
-            </div>
+        <div className="justify-start item-start flex-col flex gap-3">
+          <span>Latest Installation Scope of Work</span>
+          <div className="section-center-justify-start flex-row gap-3">
+            <button
+              className="logease-button"
+              onClick={() =>
+                handleView("LogEase Installation Scope of Work.docx")
+              }
+            >
+              View
+            </button>
+            <button
+              className="logease-button"
+              onClick={() =>
+                handleDownload("LogEase Installation Scope of Work.docx")
+              }
+            >
+              Download
+            </button>
+            <button
+              className="logease-button"
+              onClick={() =>
+                handleReplace("LogEase Installation Scope of Work.docx")
+              }
+            >
+              Replace
+            </button>
           </div>
-          <div className="section-start-justify-start flex-col gap-3">
-            <span>Latest Professional Service (7x24X4)</span>
-            <div className="section-center-justify-start flex-row gap-3">
-              <button
-                className="logease-button"
-                onClick={() =>
-                  handleView("LogEase Professional Service (7x24X4).docx")
-                }
-              >
-                View
-              </button>
-              <button
-                className="logease-button"
-                onClick={() =>
-                  handleDownload("LogEase Professional Service (7x24X4).docx")
-                }
-              >
-                Download
-              </button>
-              <button
-                className="logease-button"
-                onClick={() =>
-                  handleReplace("LogEase Professional Service (7x24X4).docx")
-                }
-              >
-                Replace
-              </button>
-            </div>
+
+          <span>Latest Professional Service (7x24X4)</span>
+          <div className="section-center-justify-start flex-row gap-3">
+            <button
+              className="logease-button"
+              onClick={() =>
+                handleView("LogEase Professional Service (7x24X4).docx")
+              }
+            >
+              View
+            </button>
+            <button
+              className="logease-button"
+              onClick={() =>
+                handleDownload("LogEase Professional Service (7x24X4).docx")
+              }
+            >
+              Download
+            </button>
+            <button
+              className="logease-button"
+              onClick={() =>
+                handleReplace("LogEase Professional Service (7x24X4).docx")
+              }
+            >
+              Replace
+            </button>
           </div>
-          <p className="mb-4">&gt;_</p>
+
+          <p>&gt;_</p>
           <Link to="/calculator" className="logease-button">
             Machine Requirement Calculator
           </Link>
@@ -220,7 +224,7 @@ export function StartPage() {
                 onChange={(e) => setNewClient(e.target.value)}
                 placeholder="Enter client name"
                 className="px-3 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
-                onKeyPress={(e) => e.key === 'Enter' && handleAddClient()}
+                onKeyPress={(e) => e.key === "Enter" && handleAddClient()}
               />
               <button
                 onClick={handleAddClient}
@@ -232,8 +236,17 @@ export function StartPage() {
             </div>
             <div className="flex flex-col gap-3 mt-3">
               {clients.map((client, index) => (
-                <div key={index} className="flex items-center justify-between bg-gray-800 p-3 rounded">
-                  <span className="break-words max-w-[80%]">{client.name}</span>
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-gray-800 p-3 rounded"
+                >
+                  <Link
+                    to="/client/$clientId"
+                    params={{ clientId: client.id.toString() }}
+                    className="break-words max-w-[80%] hover:text-blue-400"
+                  >
+                    {client.name}
+                  </Link>
                   <button
                     onClick={() => handleRemoveClient(index)}
                     className="text-red-500 hover:text-red-400 px-2 flex-shrink-0"

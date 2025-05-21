@@ -1,6 +1,7 @@
 import { RouterProvider, createRoute, createRootRoute, createRouter } from '@tanstack/react-router'
 import { StartPage } from './pages/StartPage';
 import { CalculatorPage } from './pages/CalculatorPage';
+import { ClientPage } from './pages/ClientPage';
 
 // Define your root route
 const rootRoute = createRootRoute();
@@ -18,8 +19,14 @@ const calculatorPageRoute = createRoute({
   component: CalculatorPage
 })
 
+const clientRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/client/$clientId',
+  component: ClientPage
+})
+
 // Create router instance
-const routeTree = rootRoute.addChildren([ startPageRoute, calculatorPageRoute ])
+const routeTree = rootRoute.addChildren([ startPageRoute, calculatorPageRoute, clientRoute ])
 const router = createRouter({ routeTree })
 
 

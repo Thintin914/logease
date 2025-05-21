@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config();
-const { getSignedUrlFromS3, downloadDocument, getUploadUrlFromS3 } = require('./s3Service');
-const { checkDatabaseHealth, addClient, getAllClients, deleteClientById } = require('./postgresService');
+const { getSignedUrlFromS3, downloadDocument, getUploadUrlFromS3, checkFileExists, deleteFile } = require('./s3Service');
+const { checkDatabaseHealth, addClient, getAllClients, deleteClientById, getClientById } = require('./postgresService');
 
 const cors = require('cors');
 const app = express();
@@ -77,6 +77,23 @@ app.post('/api/documents/downloads', async (req, res) => {
   }
 });
 
+// Check if file exists in S3
+app.post('/api/documents/check', async (req, res) => {
+  try {
+    const { bucket, key } = req.body;
+    
+    if (!bucket || !key) {
+      return res.status(400).json({ error: 'Bucket and key are required' });
+    }
+
+    const exists = await checkFileExists(bucket, key);
+    res.json({ exists });
+  } catch (error) {
+    console.error('Error checking file existence:', error);
+    res.status(500).json({ error: 'Failed to check file existence' });
+  }
+});
+
 // Database health check endpoint
 app.get('/api/health/db', async (req, res) => {
   try {
@@ -122,12 +139,30 @@ app.get('/api/get_all_clients', async (req, res) => {
 });
 
 // Delete client by id endpoint
-app.delete('/api/delete_client/:id', async (req, res) => {
+app.delete('/api/delete_client/:id/:name', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
+    const name = req.params.name;
+    
     if (isNaN(id)) {
       return res.status(400).json({ error: 'Invalid client id' });
     }
+
+    // Delete associated files
+    const installationKey = `clients/LogEase Installation Scope of Work For ${name}.docx`;
+    const serviceKey = `clients/LogEase Professional Service (7x24X4) For ${name}.docx`;
+
+    try {
+      await Promise.all([
+        deleteFile('logease', installationKey),
+        deleteFile('logease', serviceKey)
+      ]);
+    } catch (error) {
+      console.error('Error deleting client files:', error);
+      // Continue with client deletion even if file deletion fails
+    }
+
+    // Delete client from database
     const deleted = await deleteClientById(id);
     if (deleted) {
       res.status(204).send();
@@ -137,6 +172,25 @@ app.delete('/api/delete_client/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting client:', error);
     res.status(500).json({ error: 'Failed to delete client' });
+  }
+});
+
+// Get client by id endpoint
+app.get('/api/get_client/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid client id' });
+    }
+    const client = await getClientById(id);
+    if (client) {
+      res.json(client);
+    } else {
+      res.status(404).json({ error: 'Client not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching client:', error);
+    res.status(500).json({ error: 'Failed to fetch client' });
   }
 });
 

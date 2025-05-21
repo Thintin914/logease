@@ -1,4 +1,4 @@
-const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand, PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 const s3Client = new S3Client({
@@ -56,8 +56,42 @@ const downloadDocument = async (bucketName, key) => {
   }
 };
 
+const checkFileExists = async (bucketName, key) => {
+  const command = new HeadObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+  });
+
+  try {
+    await s3Client.send(command);
+    return true;
+  } catch (error) {
+    if (error.name === 'NotFound') {
+      return false;
+    }
+    throw error;
+  }
+};
+
+const deleteFile = async (bucketName, key) => {
+  const command = new DeleteObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+  });
+
+  try {
+    await s3Client.send(command);
+    return true;
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   getSignedUrlFromS3,
   getUploadUrlFromS3,
   downloadDocument,
+  checkFileExists,
+  deleteFile,
 }; 

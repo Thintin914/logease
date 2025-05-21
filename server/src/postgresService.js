@@ -115,6 +115,22 @@ async function deleteClientById(id) {
   }
 }
 
+// Get a client by id
+async function getClientById(id) {
+  try {
+    if (!pool) {
+      await initializePool();
+    }
+    const client = await pool.connect();
+    const result = await client.query('SELECT id, name FROM clients WHERE id = $1', [id]);
+    client.release();
+    return result.rows[0] || null;
+  } catch (error) {
+    console.error('Error fetching client:', error);
+    throw error;
+  }
+}
+
 // Initialize the pool when the module is loaded
 initializePool().catch(console.error);
 
@@ -124,5 +140,6 @@ module.exports = {
   checkDatabaseHealth,
   addClient,
   getAllClients,
-  deleteClientById
+  deleteClientById,
+  getClientById
 };
