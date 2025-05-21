@@ -5,7 +5,7 @@ const { getSignedUrlFromS3, downloadDocument } = require('./s3Service');
 
 const cors = require('cors');
 app.use(cors({
-  origin: ['https://portfolio-6xvl.vercel.app', 'https://www.jackywu.space', 'http://localhost:3000'],
+  origin: ['https://logease-orcin.vercel.app/', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
