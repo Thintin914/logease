@@ -1,4 +1,4 @@
-import { RouterProvider, createRoute, createRootRoute, createRouter, Link } from '@tanstack/react-router'
+import { RouterProvider, createRoute, createRootRoute, createRouter } from '@tanstack/react-router'
 import { StartPage } from './pages/StartPage';
 import { CalculatorPage } from './pages/CalculatorPage';
 
@@ -21,6 +21,7 @@ const calculatorPageRoute = createRoute({
 // Create router instance
 const routeTree = rootRoute.addChildren([ startPageRoute, calculatorPageRoute ])
 const router = createRouter({ routeTree })
+
 
 // Register your router for type safety
 declare module '@tanstack/react-router' {

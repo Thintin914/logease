@@ -3,15 +3,19 @@ const cors = require('cors');
 require('dotenv').config();
 const { getSignedUrlFromS3, downloadDocument } = require('./s3Service');
 
-const app = express();
-const port = process.env.PORT || 3001;
-
-// Middleware
-app.use(cors());
+const cors = require('cors');
+app.use(cors({
+  origin: ['https://portfolio-6xvl.vercel.app', 'https://www.jackywu.space', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
 
+
+const port = process.env.PORT || 8080;
 // Test route
-app.get('/api/health', (req, res) => {
+app.get('/api', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
