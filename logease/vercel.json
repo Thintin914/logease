@@ -10,8 +10,16 @@
       "source": "/(.*)",
       "headers": [
         {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
           "key": "X-Frame-Options",
           "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
         }
       ]
     }
@@ -30,25 +38,6 @@
       "main": true
     }
   },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
@@ -57,12 +46,5 @@
         "Access-Control-Allow-Origin": "*"
       }
     }
-  ],
-  "security": {
-    "ipAllowlist": [
-      "192.168.0.0/16",
-      "10.0.0.0/8",
-      "172.16.0.0/12"
-    ]
-  }
+  ]
 } 
