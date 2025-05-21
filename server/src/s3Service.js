@@ -1,4 +1,4 @@
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 const s3Client = new S3Client({
@@ -25,6 +25,22 @@ const getSignedUrlFromS3 = async (bucketName, key) => {
   }
 };
 
+const getUploadUrlFromS3 = async (bucketName, key) => {
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+  });
+
+  try {
+    // Get the signed URL that expires in 15 minutes
+    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 });
+    return signedUrl;
+  } catch (error) {
+    console.error('Error generating upload URL:', error);
+    throw error;
+  }
+};
+
 const downloadDocument = async (bucketName, key) => {
   const command = new GetObjectCommand({
     Bucket: bucketName,
@@ -42,5 +58,6 @@ const downloadDocument = async (bucketName, key) => {
 
 module.exports = {
   getSignedUrlFromS3,
+  getUploadUrlFromS3,
   downloadDocument,
 }; 

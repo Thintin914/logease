@@ -1,6 +1,7 @@
 const express = require('express');
 require('dotenv').config();
-const { getSignedUrlFromS3, downloadDocument } = require('./s3Service');
+const { getSignedUrlFromS3, downloadDocument, getUploadUrlFromS3 } = require('./s3Service');
+const { checkDatabaseHealth, addClient, getAllClients, deleteClientById } = require('./postgresService');
 
 const cors = require('cors');
 const app = express();
@@ -11,6 +12,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
 
 const port = process.env.PORT || 8080;
 // Test route
@@ -35,8 +37,25 @@ app.post('/api/documents/url', async (req, res) => {
   }
 });
 
+// Get upload URL for document
+app.post('/api/documents/upload-url', async (req, res) => {
+  try {
+    const { bucket, key } = req.body;
+    
+    if (!bucket || !key) {
+      return res.status(400).json({ error: 'Bucket and key are required' });
+    }
+
+    const uploadUrl = await getUploadUrlFromS3(bucket, key);
+    res.json({ uploadUrl });
+  } catch (error) {
+    console.error('Error getting upload URL:', error);
+    res.status(500).json({ error: 'Failed to generate upload URL' });
+  }
+});
+
 // Download document
-app.post('/api/documents/download', async (req, res) => {
+app.post('/api/documents/downloads', async (req, res) => {
   try {
     const { bucket, key } = req.body;
     
@@ -55,6 +74,69 @@ app.post('/api/documents/download', async (req, res) => {
   } catch (error) {
     console.error('Error downloading document:', error);
     res.status(500).json({ error: 'Failed to download document' });
+  }
+});
+
+// Database health check endpoint
+app.get('/api/health/db', async (req, res) => {
+  try {
+    const healthStatus = await checkDatabaseHealth();
+    res.json(healthStatus);
+  } catch (error) {
+    console.error('Error checking database health:', error);
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Failed to check database health',
+      error: error.message 
+    });
+  }
+});
+
+// Add client endpoint
+app.post('/api/add_clients', async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ error: 'Client name is required' });
+    }
+    const client = await addClient(name.trim());
+    if (!client) {
+      return res.status(409).json({ error: 'Client with this name already exists' });
+    }
+    res.status(201).json(client);
+  } catch (error) {
+    console.error('Error adding client:', error);
+    res.status(500).json({ error: 'Failed to add client' });
+  }
+});
+
+// Get all clients endpoint
+app.get('/api/get_all_clients', async (req, res) => {
+  try {
+    const clients = await getAllClients();
+    res.json(clients);
+  } catch (error) {
+    console.error('Error fetching clients:', error);
+    res.status(500).json({ error: 'Failed to fetch clients' });
+  }
+});
+
+// Delete client by id endpoint
+app.delete('/api/delete_client/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid client id' });
+    }
+    const deleted = await deleteClientById(id);
+    if (deleted) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ error: 'Client not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting client:', error);
+    res.status(500).json({ error: 'Failed to delete client' });
   }
 });
 

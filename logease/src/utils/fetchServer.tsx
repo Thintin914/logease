@@ -2,6 +2,7 @@ interface FetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: any;
   headers?: Record<string, string>;
+  responseType?: 'json' | 'blob';
 }
 
 interface ServerResponse<T> {
@@ -20,6 +21,7 @@ export async function fetchServer<T>(
     method = 'GET',
     body,
     headers = {},
+    responseType = 'json',
   } = options;
 
   try {
@@ -32,13 +34,33 @@ export async function fetchServer<T>(
       body: body ? JSON.stringify(body) : undefined,
     });
 
-    const data = await response.json();
+    // Handle 204 No Content
+    if (response.status === 204) {
+      return { status: 204 };
+    }
 
     if (!response.ok) {
+      let errorData = {};
+      try {
+        // Only try to parse JSON if there is content
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          errorData = await response.json();
+        }
+      } catch {
+        // Ignore JSON parse errors for empty or invalid bodies
+      }
       return {
-        error: data.error || 'An error occurred',
+        error: (errorData as any).error || 'An error occurred',
         status: response.status,
       };
+    }
+
+    let data;
+    if (responseType === 'blob') {
+      data = await response.blob();
+    } else {
+      data = await response.json();
     }
 
     return {
@@ -52,34 +74,3 @@ export async function fetchServer<T>(
     };
   }
 }
-
-// Example usage:
-/*
-// Get signed URL
-const getSignedUrl = async (bucket: string, key: string) => {
-  const response = await fetchServer<{ signedUrl: string }>('/api/documents/url', {
-    method: 'POST',
-    body: { bucket, key },
-  });
-  
-  if (response.error) {
-    throw new Error(response.error);
-  }
-  
-  return response.data?.signedUrl;
-};
-
-// Download document
-const downloadDocument = async (bucket: string, key: string) => {
-  const response = await fetchServer<Blob>('/api/documents/download', {
-    method: 'POST',
-    body: { bucket, key },
-  });
-  
-  if (response.error) {
-    throw new Error(response.error);
-  }
-  
-  return response.data;
-};
-*/
