@@ -1,17 +1,16 @@
 const express = require('express');
-const cors = require('cors');
 require('dotenv').config();
 const { getSignedUrlFromS3, downloadDocument } = require('./s3Service');
 
 const cors = require('cors');
+const app = express();
 app.use(cors({
-  origin: ['https://logease-orcin.vercel.app/', 'http://localhost:5173'],
+  origin: ['https://logease-orcin.vercel.app', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 app.use(express.json());
-
 
 const port = process.env.PORT || 8080;
 // Test route
