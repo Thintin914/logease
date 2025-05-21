@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+body {
+  background-color: #312c36;
+}
+
+.main-container {
+  width: 100%;
+  min-height: 100vh;
+  height: 100vh;
+  position: absolute;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+}
+
+.section-center-justify-start {
+  width: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+.section-start-justify-start {
+  width: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: start;
+}
+
+.section-center-justify-center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.section-start-justify-center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+}
+
+.logease-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #4a4453;
+  color: white;
+  border: 1px solid #5d5668;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  font-family: inherit;
+  width: fit-content;
+  text-align: left;
+}
+
+.logease-button:hover {
+  background-color: #5d5668;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15), 0 3px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.logease-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
