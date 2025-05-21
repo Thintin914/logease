@@ -37,14 +37,5 @@
     "deploymentEnabled": {
       "main": true
     }
-  },
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "headers": {
-        "Access-Control-Allow-Origin": "*"
-      }
-    }
-  ]
+  }
 } 
