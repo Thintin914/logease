@@ -25,46 +25,57 @@ export function CalculatorPage() {
         "10t-cluster": "https://logease.s3.ap-southeast-2.amazonaws.com/machine-requirement/10T-cluster.png"
     }];
 
-    const [currentResourceReference, setCurrentResourceReference] = useState<{ url: string; name: string }[]>(findClosestResourceReference(inputs.dailyLogSize));
+    const [currentResourceReference, setCurrentResourceReference] = useState<{ url: string; name: string }[]>(findClosestResourceReference(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention), parseFloat(inputs.numberOfMachines)));
     useEffect(() => {
-        setCurrentResourceReference(findClosestResourceReference(String(parseFloat(inputs.dailyLogSize) * parseFloat(inputs.hotDataRetention))));
-    }, [inputs.dailyLogSize, inputs.hotDataRetention]);
+        setCurrentResourceReference(findClosestResourceReference(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention), parseFloat(inputs.numberOfMachines)));
+    }, [inputs.dailyLogSize, inputs.hotDataRetention, inputs.numberOfMachines]);
 
-    function findClosestResourceReference(dailyLogSize: string): { url: string; name: string }[] {
-        const size = parseFloat(dailyLogSize);
-        const references: { url: string; name: string }[] = [];
-        
-        // Always include single machine case for small sizes
-        if (size <= 20) {
-            references.push(
-                { url: resourceReference[0]["10g-20g-single"], name: "10g-20g-single" },
-                { url: resourceReference[0]["10g-20g-cluster"], name: "10g-20g-cluster" }
-            );
-        }
-        
-        // Add all cluster configurations that can handle the size
-        if (size <= 100) {
-            references.push({ url: resourceReference[0]["100g-cluster"], name: "100g-cluster" });
-        }
-        if (size <= 300) {
-            references.push({ url: resourceReference[0]["300g-cluster"], name: "300g-cluster" });
-        }
-        if (size <= 1000) {
-            references.push({ url: resourceReference[0]["1t-cluster"], name: "1t-cluster" });
-        }
-        if (size <= 10000) {
-            references.push({ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" });
-        }
-        
-        if (references.length === 0) {
-            references.push({ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" });
-        }
-        
-        if (references.length > 0) {
-            references[0].name += " (Closest)";
+    function findClosestResourceReference(dailyLogSize: number, hotDataRetention: number, numberOfMachines: number): { url: string; name: string, is_cluster: boolean }[] {
+        if (isNaN(dailyLogSize) || isNaN(hotDataRetention) || isNaN(numberOfMachines)) {
+            return [];
         }
 
-        return references;
+
+        const _totalStorage = dailyLogSize * hotDataRetention;
+        const sizePerMachine = _totalStorage / numberOfMachines;
+        if (hotDataRetention === 0 || numberOfMachines < 1) {
+            return [];
+        }
+        let allMachines: { url: string; name: string, is_cluster: boolean }[] = [];
+        if (_totalStorage <= 1500) {
+            allMachines.push({ url: resourceReference[0]["10g-20g-single"], name: "10g-20g-single", is_cluster: false });
+        }
+        if (_totalStorage <= 2500) {
+            allMachines.push({ url: resourceReference[0]["10g-20g-cluster"], name: "10g-20g-cluster", is_cluster: true });
+        }
+
+        if (_totalStorage <= 10000) {
+            allMachines.push({ url: resourceReference[0]["100g-cluster"], name: "100g-cluster", is_cluster: true });
+        }
+        
+        if (_totalStorage <= 30000) {
+            allMachines.push({ url: resourceReference[0]["300g-cluster"], name: "300g-cluster", is_cluster: true });
+        }
+
+        if (_totalStorage <= 48000) {
+            allMachines.push({ url: resourceReference[0]["1t-cluster"], name: "1t-cluster", is_cluster: true }); 
+        }
+
+        if (_totalStorage <= 288000) {
+            allMachines.push({ url: resourceReference[0]["10t-cluster"], name: "10t-cluster", is_cluster: true });
+        }
+
+        for(let i = 0; i < allMachines.length; i++) {
+            let currentMachine = allMachines[i];
+            if (numberOfMachines === 1 && currentMachine.is_cluster){
+                currentMachine.name += " (Not Standalone)";
+            }
+            if (numberOfMachines > 1 && !currentMachine.is_cluster){
+                currentMachine.name += " (Not Cluster)";
+            }
+        }
+
+        return allMachines;
     }
 
     const totalStorage =
