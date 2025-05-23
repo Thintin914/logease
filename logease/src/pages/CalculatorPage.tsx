@@ -56,8 +56,9 @@ export function CalculatorPage() {
             references.push({ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" });
         }
         
-        // Always include the largest configuration as a fallback
-        references.push({ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" });
+        if (references.length === 0) {
+            references.push({ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" });
+        }
         
         if (references.length > 0) {
             references[0].name += " (Closest)";
