@@ -189,16 +189,6 @@ export function CalculatorPage() {
                 </table>
             </div>
 
-            <div className="bg-[#232026] rounded-lg shadow-lg p-8 w-full max-w-2xl mt-8">
-                <h3 className="text-xl font-bold mb-4">Resources Reference</h3>
-                {currentResourceReference.map((reference, index) => (
-                    <div key={`machine-requirement-${index}`} className='section-start-justify-center flex-col'>
-                        <p className='text-base'>{reference.name}</p>
-                        <img src={reference.url} alt="Resource Reference" />
-                    </div>
-                ))}
-            </div>
-
             {/* Results Section */}
             <div className="bg-[#232026] rounded-lg shadow-lg p-8 w-full max-w-2xl mt-8">
                 <h3 className="text-xl font-bold mb-4">The total storage needed for hot data:</h3>
@@ -234,10 +224,26 @@ export function CalculatorPage() {
             </div>
 
             <div className="bg-[#232026] rounded-lg shadow-lg p-8 w-full max-w-2xl mt-8">
-                <h3 className="text-xl font-bold mb-4">Cold data storage needed for each machine:</h3>
-                <div className="mb-2 text-base font-mono">
-                    {`${totalColdStorageTB.toLocaleString(undefined, {maximumFractionDigits: 3})}TB ÷ ${inputs.numberOfMachines} = ${coldStoragePerMachineTB.toLocaleString(undefined, {maximumFractionDigits: 3})}TB`}
+                <h3 className="text-xl font-bold mb-4">Total Storage Needed:</h3>
+                <div className="mb-2 text-base">
+                    <span className="font-mono">Total storage needed for hot data + Total storage needed for cold data</span>
                 </div>
+                <div className="mb-2 text-base font-mono">
+                    {`${totalStorage ? totalStorage.toLocaleString(undefined, {maximumFractionDigits: 2}) : '0.00'}GB + ${totalColdStorage ? totalColdStorage.toLocaleString(undefined, {maximumFractionDigits: 2}) : '0.00'}GB = ${totalStorage + totalColdStorage ? (totalStorage + totalColdStorage).toLocaleString(undefined, {maximumFractionDigits: 3}) : '0.00'}GB`}
+                </div>
+                <div className="mb-2 text-base font-mono">
+                    {`${totalStorage + totalColdStorage ? (totalStorage + totalColdStorage).toLocaleString(undefined, {maximumFractionDigits: 3}) : '0.00'}GB = ${(totalStorage + totalColdStorage)/1000 ? ((totalStorage + totalColdStorage)/1000).toLocaleString(undefined, {maximumFractionDigits: 3}) : '0.00'}TB`}
+                </div>
+            </div>
+
+            <div className="bg-[#232026] rounded-lg shadow-lg p-8 w-full max-w-2xl mt-8">
+                <h3 className="text-xl font-bold mb-4">Resources Reference</h3>
+                {currentResourceReference.map((reference, index) => (
+                    <div key={`machine-requirement-${index}`} className='section-start-justify-center flex-col'>
+                        <p className='text-base'>{reference.name}</p>
+                        <img src={reference.url} alt="Resource Reference" />
+                    </div>
+                ))}
             </div>
 
         </div>
