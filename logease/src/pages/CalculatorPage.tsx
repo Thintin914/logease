@@ -27,32 +27,43 @@ export function CalculatorPage() {
 
     const [currentResourceReference, setCurrentResourceReference] = useState<{ url: string; name: string }[]>(findClosestResourceReference(inputs.dailyLogSize));
     useEffect(() => {
-        setCurrentResourceReference(findClosestResourceReference(inputs.dailyLogSize));
-    }, [inputs.dailyLogSize]);
+        setCurrentResourceReference(findClosestResourceReference(String(parseFloat(inputs.dailyLogSize) * parseFloat(inputs.hotDataRetention))));
+    }, [inputs.dailyLogSize, inputs.hotDataRetention]);
 
     function findClosestResourceReference(dailyLogSize: string): { url: string; name: string }[] {
         const size = parseFloat(dailyLogSize);
+        const references: { url: string; name: string }[] = [];
         
-        // Handle single machine case for small sizes
+        // Always include single machine case for small sizes
         if (size <= 20) {
-            return [
+            references.push(
                 { url: resourceReference[0]["10g-20g-single"], name: "10g-20g-single" },
                 { url: resourceReference[0]["10g-20g-cluster"], name: "10g-20g-cluster" }
-            ];
+            );
         }
         
-        // Handle cluster cases
+        // Add all cluster configurations that can handle the size
         if (size <= 100) {
-            return [{ url: resourceReference[0]["100g-cluster"], name: "100g-cluster" }];
-        } else if (size <= 300) {
-            return [{ url: resourceReference[0]["300g-cluster"], name: "300g-cluster" }];
-        } else if (size <= 1000) {
-            return [{ url: resourceReference[0]["1t-cluster"], name: "1t-cluster" }];
-        } else if (size <= 10000) {
-            return [{ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" }];
-        } else {
-            return [{ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" }];
+            references.push({ url: resourceReference[0]["100g-cluster"], name: "100g-cluster" });
         }
+        if (size <= 300) {
+            references.push({ url: resourceReference[0]["300g-cluster"], name: "300g-cluster" });
+        }
+        if (size <= 1000) {
+            references.push({ url: resourceReference[0]["1t-cluster"], name: "1t-cluster" });
+        }
+        if (size <= 10000) {
+            references.push({ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" });
+        }
+        
+        // Always include the largest configuration as a fallback
+        references.push({ url: resourceReference[0]["10t-cluster"], name: "10t-cluster" });
+        
+        if (references.length > 0) {
+            references[0].name += " (Closest)";
+        }
+
+        return references;
     }
 
     const totalStorage =
