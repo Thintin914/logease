@@ -2,6 +2,7 @@ import { RouterProvider, createRoute, createRootRoute, createRouter } from '@tan
 import { StartPage } from './pages/StartPage';
 import { CalculatorPage } from './pages/CalculatorPage';
 import { ClientPage } from './pages/ClientPage';
+import { MandayCalculatorPage } from './pages/MandatCalculatorPage';
 
 // Define your root route
 const rootRoute = createRootRoute();
@@ -19,6 +20,12 @@ const calculatorPageRoute = createRoute({
   component: CalculatorPage
 })
 
+const mandayCalculatorPageRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/manday-calculator',
+  component: MandayCalculatorPage
+})
+
 const clientRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/client/$clientId',
@@ -26,7 +33,7 @@ const clientRoute = createRoute({
 })
 
 // Create router instance
-const routeTree = rootRoute.addChildren([ startPageRoute, calculatorPageRoute, clientRoute ])
+const routeTree = rootRoute.addChildren([ startPageRoute, calculatorPageRoute, clientRoute, mandayCalculatorPageRoute ])
 const router = createRouter({ routeTree })
 
 

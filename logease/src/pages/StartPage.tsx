@@ -211,6 +211,9 @@ export function StartPage() {
           <Link to="/calculator" className="logease-button">
             Machine Requirement Calculator
           </Link>
+          <Link to="/manday-calculator" className="logease-button">
+            Manday Requirement Calculator
+          </Link>
         </div>
 
         {/* Block 2 */}
