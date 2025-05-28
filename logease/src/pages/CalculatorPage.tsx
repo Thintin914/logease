@@ -31,6 +31,11 @@ export function CalculatorPage() {
         totalStorage: 2500,
         is_cluster: true,
       },
+      "daily 50g-cluster": {
+        url: "https://logease.s3.ap-southeast-2.amazonaws.com/machine-requirement/50G-cluster.png",
+        totalStorage: 5000,
+        is_cluster: true,
+      },
       "daily 100g-cluster": {
         url: "https://logease.s3.ap-southeast-2.amazonaws.com/machine-requirement/100G-cluster.png",
         totalStorage: 10000,
