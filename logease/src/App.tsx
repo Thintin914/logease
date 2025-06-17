@@ -2,7 +2,7 @@ import { RouterProvider, createRoute, createRootRoute, createRouter } from '@tan
 import { StartPage } from './pages/StartPage';
 import { CalculatorPage } from './pages/CalculatorPage';
 import { ClientPage } from './pages/ClientPage';
-import { MandayCalculatorPage } from './pages/MandatCalculatorPage';
+import { MandayCalculatorPage } from './pages/MandayCalculatorPage';
 import { FileRetrievalPage } from './pages/FileRetrievalPage';
 
 // Define your root route

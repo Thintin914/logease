@@ -5,6 +5,7 @@ const logVolumeOptions = [
   { label: "10G", value: "10G", manday: 15 },
   { label: "20G", value: "20G", manday: 20 },
   { label: "30G", value: "30G", manday: 25 },
+  { label: "50G", value: "50G", manday: 30 },
   { label: "300G", value: "300G", manday: 80 },
   { label: "1.5T", value: "1.5T", manday: 120 },
 ];
