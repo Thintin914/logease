@@ -50,15 +50,22 @@ class BedrockService {
             // Query the knowledge base
             const knowledgeResults = await this.queryKnowledgeBase(message, KNOWLEDGE_BASE_ID);
             
-            // Extract source information and content, then sort and take top 2
+            // Extract source information and content, then sort and take top 2 unique files
             let sources = knowledgeResults
                 .map(result => ({
                     text: result.content.text,
                     s3uri: result.location.s3Location?.uri || null,
                     score: result.score
                 }))
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 2);
+                .sort((a, b) => b.score - a.score);
+
+            // Filter to unique s3uri (keep highest score for each file)
+            const seen = new Set();
+            sources = sources.filter(source => {
+                if (!source.s3uri || seen.has(source.s3uri)) return false;
+                seen.add(source.s3uri);
+                return true;
+            }).slice(0, 2);
 
             // Generate presigned URLs for each source using s3Service
             sources = await Promise.all(sources.map(async (source) => {

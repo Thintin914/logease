@@ -38,7 +38,7 @@ export function FileRetrievalPage() {
                 }
 
                 setMessages(prev => [...prev, { 
-                    text: "Here are the top 2 relevant documents:", 
+                    text: "Here are the relevant documents:", 
                     isUser: false,
                     sources: result.data!.response.sources
                 }]);
@@ -76,7 +76,7 @@ export function FileRetrievalPage() {
                                 </div>
                                 {!message.isUser && message.sources && message.sources.length > 0 && (
                                     <div className="mt-2">
-                                        <div className="font-semibold text-base text-blue-300 mb-2">Top 2 Relevant Documents</div>
+                                        <div className="font-semibold text-base text-blue-300 mb-2">Relevant Documents</div>
                                         <div className="space-y-4">
                                             {message.sources.map((source, idx) => (
                                                 <div key={idx} className="bg-gray-900 border border-gray-700 rounded-lg p-4">
