@@ -37,7 +37,6 @@ export function FileRetrievalPage() {
                     throw new Error('No data received from server');
                 }
 
-                console.log(result);
                 setMessages(prev => [...prev, { 
                     text: "Here are the top 2 relevant documents:", 
                     isUser: false,
