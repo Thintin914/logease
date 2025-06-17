@@ -2,6 +2,7 @@ const express = require('express');
 require('dotenv').config();
 const { getSignedUrlFromS3, downloadDocument, getUploadUrlFromS3, checkFileExists, deleteFile } = require('./s3Service');
 const { checkDatabaseHealth, addClient, getAllClients, deleteClientById, getClientById } = require('./postgresService');
+const BedrockService = require('./bedrockService');
 
 const cors = require('cors');
 const app = express();
@@ -13,11 +14,21 @@ app.use(cors({
 }));
 app.use(express.json());
 
-
-const port = process.env.PORT || 8080;
-// Test route
-app.get('/api', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' });
+const bedrockService = new BedrockService();
+// Chat endpoint
+app.post('/api/chat/message', async (req, res) => {
+    try {
+        const { message } = req.body;
+        
+        if (!message) {
+            return res.status(400).json({ error: 'Message is required' });
+        }
+        const response = await bedrockService.processChatMessage(message);
+        res.json({ response });
+    } catch (error) {
+        console.error('Error processing chat message:', error);
+        res.status(500).json({ error: 'Failed to process message' });
+    }
 });
 
 // Get signed URL for document
@@ -192,6 +203,12 @@ app.get('/api/get_client/:id', async (req, res) => {
     console.error('Error fetching client:', error);
     res.status(500).json({ error: 'Failed to fetch client' });
   }
+});
+
+const port = process.env.PORT || 8080;
+// Test route
+app.get('/api', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
 });
 
 // Start server
