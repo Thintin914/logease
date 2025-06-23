@@ -46,6 +46,21 @@ export function CalculatorPage() {
         totalStorage: 30000,
         is_cluster: true,
       },
+      "daily 500g-cluster (physical machine)": {
+        url: "https://logease.s3.ap-southeast-2.amazonaws.com/machine-requirement/500G-cluster-physical.png",
+        totalStorage: 50000,
+        is_cluster: true,
+      },
+      "daily 1t-cluster (physical machine)": {
+        url: "https://logease.s3.ap-southeast-2.amazonaws.com/machine-requirement/1T-cluster-physical.png",
+        totalStorage: 100000,
+        is_cluster: true,
+      },
+      "daily 1.5T-cluster (physical machine)": {
+        url: "https://logease.s3.ap-southeast-2.amazonaws.com/machine-requirement/1.5T-cluster-physical.png",
+        totalStorage: 150000,
+        is_cluster: true,
+      },
       "daily 1t-cluster": {
         url: "https://logease.s3.ap-southeast-2.amazonaws.com/machine-requirement/1T-cluster.png",
         totalStorage: 48000,
