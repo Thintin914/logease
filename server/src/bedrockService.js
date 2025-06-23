@@ -32,7 +32,7 @@ class BedrockService {
                 },
                 retrievalConfiguration: {
                     vectorSearchConfiguration: {
-                        numberOfResults: 5
+                        numberOfResults: 2
                     }
                 }
             });
@@ -50,7 +50,7 @@ class BedrockService {
             // Query the knowledge base
             const knowledgeResults = await this.queryKnowledgeBase(message, KNOWLEDGE_BASE_ID);
             
-            // Extract source information and content, then sort and take top 2 unique files
+            // Extract source information and content with scores
             let sources = knowledgeResults
                 .map(result => ({
                     text: result.content.text,
@@ -59,24 +59,17 @@ class BedrockService {
                 }))
                 .sort((a, b) => b.score - a.score);
 
-            // Filter to unique s3uri (keep highest score for each file)
-            const seen = new Set();
-            sources = sources.filter(source => {
-                if (!source.s3uri || seen.has(source.s3uri)) return false;
-                seen.add(source.s3uri);
-                return true;
-            }).slice(0, 2);
-
             // Generate presigned URLs for each source using s3Service
             sources = await Promise.all(sources.map(async (source) => {
                 let url = source.s3uri ? await this.getPresignedUrl(source.s3uri) : null;
                 return {
                     source: url || source.s3uri || 'Unknown source',
-                    text: source.text
+                    text: source.text,
+                    score: source.score
                 };
             }));
 
-            // Return only the top 2 sources with their content and presigned URLs
+            // Return all sources with their content, presigned URLs, and scores
             return {
                 sources
             };

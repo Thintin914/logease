@@ -5,14 +5,14 @@ const { checkDatabaseHealth, addClient, getAllClients, deleteClientById, getClie
 const BedrockService = require('./bedrockService');
 
 // comment out cors for AWS deployment
-// const cors = require('cors');
+const cors = require('cors');
 const app = express();
-// app.use(cors({
-//   origin: ['https://logease-orcin.vercel.app', 'http://localhost:5173'],
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-//   credentials: true
-// }));
+app.use(cors({
+  origin: ['https://logease-orcin.vercel.app', 'http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
 
 const bedrockService = new BedrockService();

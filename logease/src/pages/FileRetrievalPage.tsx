@@ -8,6 +8,7 @@ interface Message {
     sources?: Array<{
         source: string;
         text: string;
+        score: number;
     }>;
 }
 
@@ -24,7 +25,7 @@ export function FileRetrievalPage() {
             setIsLoading(true);
 
             try {
-                const result = await fetchServer<{ response: { sources: Array<{ source: string; text: string }> } }>('/chat/message', {
+                const result = await fetchServer<{ response: { sources: Array<{ source: string; text: string; score: number }> } }>('/chat/message', {
                     method: 'POST',
                     body: { message: userMessage }
                 });
@@ -80,10 +81,15 @@ export function FileRetrievalPage() {
                                         <div className="space-y-4">
                                             {message.sources.map((source, idx) => (
                                                 <div key={idx} className="bg-gray-900 border border-gray-700 rounded-lg p-4">
-                                                    <div className="mb-2 text-xs text-blue-400 break-all">
-                                                        <a href={source.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">
-                                                            {source.source}
-                                                        </a>
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="text-xs text-blue-400 break-all flex-1">
+                                                            <a href={source.source} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-200">
+                                                                {source.source}
+                                                            </a>
+                                                        </div>
+                                                        <div className="ml-2 text-xs bg-blue-600 text-white px-2 py-1 rounded">
+                                                            Score: {source.score.toFixed(3)}
+                                                        </div>
                                                     </div>
                                                     <div className="bg-gray-800 rounded p-3 text-sm max-h-40 overflow-y-auto whitespace-pre-wrap">
                                                         {source.text}
