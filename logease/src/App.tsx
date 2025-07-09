@@ -3,7 +3,6 @@ import { StartPage } from './pages/StartPage';
 import { CalculatorPage } from './pages/CalculatorPage';
 import { ClientPage } from './pages/ClientPage';
 import { MandayCalculatorPage } from './pages/MandayCalculatorPage';
-import { FileRetrievalPage } from './pages/FileRetrievalPage';
 
 // Define your root route
 const rootRoute = createRootRoute();
@@ -27,12 +26,6 @@ const mandayCalculatorPageRoute = createRoute({
   component: MandayCalculatorPage
 })
 
-const fileRetrievalPageRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/file-retrieval',
-  component: FileRetrievalPage
-})
-
 const clientRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/client/$clientId',
@@ -40,7 +33,7 @@ const clientRoute = createRoute({
 })
 
 // Create router instance
-const routeTree = rootRoute.addChildren([ startPageRoute, calculatorPageRoute, clientRoute, mandayCalculatorPageRoute, fileRetrievalPageRoute ])
+const routeTree = rootRoute.addChildren([ startPageRoute, calculatorPageRoute, clientRoute, mandayCalculatorPageRoute ])
 const router = createRouter({ routeTree })
 
 

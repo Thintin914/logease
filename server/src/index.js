@@ -2,7 +2,7 @@ const express = require('express');
 require('dotenv').config();
 const { getSignedUrlFromS3, downloadDocument, getUploadUrlFromS3, checkFileExists, deleteFile } = require('./s3Service');
 const { checkDatabaseHealth, addClient, getAllClients, deleteClientById, getClientById } = require('./postgresService');
-const BedrockService = require('./bedrockService');
+// const BedrockService = require('./bedrockService');
 
 // comment out cors for AWS deployment
 // const cors = require('cors');
@@ -15,22 +15,22 @@ const app = express();
 // }));
 app.use(express.json());
 
-const bedrockService = new BedrockService();
+// const bedrockService = new BedrockService();
 // Chat endpoint
-app.post('/api/chat/message', async (req, res) => {
-    try {
-        const { message } = req.body;
+// app.post('/api/chat/message', async (req, res) => {
+//     try {
+//         const { message } = req.body;
         
-        if (!message) {
-            return res.status(400).json({ error: 'Message is required' });
-        }
-        const response = await bedrockService.processChatMessage(message);
-        res.json({ response });
-    } catch (error) {
-        console.error('Error processing chat message:', error);
-        res.status(500).json({ error: 'Failed to process message' });
-    }
-});
+//         if (!message) {
+//             return res.status(400).json({ error: 'Message is required' });
+//         }
+//         const response = await bedrockService.processChatMessage(message);
+//         res.json({ response });
+//     } catch (error) {
+//         console.error('Error processing chat message:', error);
+//         res.status(500).json({ error: 'Failed to process message' });
+//     }
+// });
 
 // Get signed URL for document
 app.post('/api/documents/url', async (req, res) => {
