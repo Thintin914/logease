@@ -12,6 +12,8 @@ export function CalculatorPage() {
     diskRedundancy: "1.2",
   });
 
+  const [includeColdData, setIncludeColdData] = useState(true);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     key: string
@@ -96,7 +98,7 @@ export function CalculatorPage() {
         parseFloat(inputs.numberOfMachines)
       )
     );
-  }, [inputs.dailyLogSize, inputs.hotDataRetention, inputs.numberOfMachines]);
+  }, [inputs.dailyLogSize, inputs.hotDataRetention, inputs.numberOfMachines, includeColdData]);
 
   function findClosestResourceReference(
     dailyLogSize: number,
@@ -111,7 +113,7 @@ export function CalculatorPage() {
       return [];
     }
 
-    const _totalStorage = dailyLogSize * hotDataRetention + coldStorage(dailyLogSize, hotDataRetention).GB;
+    const _totalStorage = dailyLogSize * hotDataRetention + (includeColdData ? coldStorage(dailyLogSize, hotDataRetention).GB : 0);
     const sizePerMachine = _totalStorage / numberOfMachines;
     if (hotDataRetention === 0 || numberOfMachines < 1) {
       return [];
@@ -298,30 +300,59 @@ export function CalculatorPage() {
       </div>
 
       <div className="bg-[#232026] rounded-lg shadow-lg p-8 w-full max-w-2xl mt-8">
-        <h3 className="text-xl font-bold mb-4">
-          The total storage needed for cold data:
-        </h3>
-        <div className="mb-2 text-base">
-          <span className="font-mono">Daily log size × Hot data retention</span>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold">
+            The total storage needed for cold data:
+          </h3>
+          <button
+            onClick={() => setIncludeColdData(!includeColdData)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              includeColdData
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-gray-600 hover:bg-gray-700 text-white"
+            }`}
+          >
+            {includeColdData ? "Enabled" : "Disabled"}
+          </button>
         </div>
-        <div className="mb-2 text-base font-mono">
-          {`${inputs.dailyLogSize}GB × ${inputs.hotDataRetention} = ${coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB.toLocaleString(undefined, { maximumFractionDigits: 2 })}GB = ${coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).TB.toLocaleString(undefined, { maximumFractionDigits: 3 })}TB`}
-        </div>
+        {includeColdData && (
+          <>
+            <div className="mb-2 text-base">
+              <span className="font-mono">Daily log size × Hot data retention</span>
+            </div>
+            <div className="mb-2 text-base font-mono">
+              {`${inputs.dailyLogSize}GB × ${inputs.hotDataRetention} = ${coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB.toLocaleString(undefined, { maximumFractionDigits: 2 })}GB = ${coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).TB.toLocaleString(undefined, { maximumFractionDigits: 3 })}TB`}
+            </div>
+          </>
+        )}
+        {!includeColdData && (
+          <div className="text-gray-400 italic">
+            Cold data calculation is disabled
+          </div>
+        )}
       </div>
 
       <div className="bg-[#232026] rounded-lg shadow-lg p-8 w-full max-w-2xl mt-8">
         <h3 className="text-xl font-bold mb-4">Total storage needed:</h3>
         <div className="mb-2 text-base">
           <span className="font-mono">
-            Total storage needed for hot data + Total storage needed for cold
-            data
+            {includeColdData 
+              ? "Total storage needed for hot data + Total storage needed for cold data"
+              : "Total storage needed for hot data only"
+            }
           </span>
         </div>
         <div className="mb-2 text-base font-mono">
-          { `${totalStorage ? totalStorage.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "0.00"}GB + ${coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB.toLocaleString(undefined, { maximumFractionDigits: 2 })}GB = ${totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB ? (totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB` }
+          {includeColdData 
+            ? `${totalStorage ? totalStorage.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "0.00"}GB + ${coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB.toLocaleString(undefined, { maximumFractionDigits: 2 })}GB = ${totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB ? (totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB`
+            : `${totalStorage ? totalStorage.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "0.00"}GB`
+          }
         </div>
         <div className="mb-2 text-base font-mono">
-          {`${totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB ? (totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB = ${(totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / 1000 ? ((totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}TB`}
+          {includeColdData 
+            ? `${totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB ? (totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB = ${(totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / 1000 ? ((totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}TB`
+            : `${totalStorage ? totalStorage.toLocaleString(undefined, { maximumFractionDigits: 2 }) : "0.00"}GB = ${(totalStorage / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 })}TB`
+          }
         </div>
       </div>
 
@@ -333,10 +364,16 @@ export function CalculatorPage() {
               </span>
             </div>
             <div className="mb-2 text-base font-mono">
-              { totalStorage ? (totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB ÷ {inputs.numberOfMachines} = {totalStorage ? ((totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / parseFloat(inputs.numberOfMachines)).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB
+              {includeColdData 
+                ? `${totalStorage ? (totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB ÷ ${inputs.numberOfMachines} = ${totalStorage ? ((totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / parseFloat(inputs.numberOfMachines)).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB`
+                : `${totalStorage ? totalStorage.toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB ÷ ${inputs.numberOfMachines} = ${totalStorage ? (totalStorage / parseFloat(inputs.numberOfMachines)).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB`
+              }
             </div>
             <div className="mb-2 text-base font-mono">
-              {`${totalStorage ? ((totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / parseFloat(inputs.numberOfMachines)).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB = ${totalStorage ? (((totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / parseFloat(inputs.numberOfMachines)) / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}TB`}
+              {includeColdData 
+                ? `${totalStorage ? ((totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / parseFloat(inputs.numberOfMachines)).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB = ${totalStorage ? (((totalStorage + coldStorage(parseFloat(inputs.dailyLogSize), parseFloat(inputs.hotDataRetention)).GB) / parseFloat(inputs.numberOfMachines)) / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}TB`
+                : `${totalStorage ? (totalStorage / parseFloat(inputs.numberOfMachines)).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}GB = ${totalStorage ? ((totalStorage / parseFloat(inputs.numberOfMachines)) / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 }) : "0.00"}TB`
+              }
             </div>
         </div>
 
